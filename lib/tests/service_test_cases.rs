@@ -55,14 +55,14 @@ fn two_service_test() {
         ) -> Result<BindingsIterator<'a>> {
             let service1 = NamedNode::parse("http://service1.org").unwrap();
             let service2 = NamedNode::parse("http://service2.org").unwrap();
-            if named_node == &service1 {
+            if named_node == service1 {
                 let triples = br#"
         <http://example.com/bob> <http://xmlns.com/foaf/0.1/name> "Bob" .
         <http://example.com/alice> <http://xmlns.com/foaf/0.1/name> "Alice" .
         "#
                 .as_ref();
                 do_pattern(triples, graph_pattern, QueryOptions::default())
-            } else if named_node == &service2 {
+            } else if named_node == service2 {
                 let triples = br#"
         <http://example.com/bob> <http://xmlns.com/foaf/0.1/mbox> <mailto:bob@example.com> .
         <http://example.com/alice> <http://xmlns.com/foaf/0.1/mbox> <mailto:alice@example.com> .
@@ -191,11 +191,11 @@ fn non_silent_service_test() {
 }
 
 fn ex(id: String) -> Term {
-    Term::NamedNode(NamedNode::parse(format!("http://example.com/{}", &id)).unwrap())
+    Term::NamedNode(NamedNodeBuf::parse(format!("http://example.com/{}", &id)).unwrap())
 }
 
 fn mailto(id: String) -> Term {
-    Term::NamedNode(NamedNode::parse(format!("mailto:{}", &id)).unwrap())
+    Term::NamedNode(NamedNodeBuf::parse(format!("mailto:{}", &id)).unwrap())
 }
 
 fn literal(str: String) -> Term {

@@ -2,7 +2,7 @@ use crate::format_err;
 use crate::model::*;
 use crate::utils::to_err;
 use js_sys::{Array, Map};
-use oxigraph::model::NamedOrBlankNode;
+use oxigraph::model::{NamedNodeBuf, NamedOrBlankNode};
 use oxigraph::sparql::{PreparedQuery, QueryOptions, QueryResult};
 use oxigraph::{DatasetSyntax, Error, FileSyntax, GraphSyntax, MemoryStore};
 use std::convert::TryInto;
@@ -76,14 +76,14 @@ impl JsMemoryStore {
                     None => None,
                 }.as_ref(),
                 match self.from_js.to_optional_term(predicate)? {
-                    Some(JsTerm::NamedNode(node)) => Some(node.into()),
+                    Some(JsTerm::NamedNode(node)) => Some(NamedNodeBuf::from(node)),
                     Some(_) => {
                         return Err(format_err!(
                             "The match predicate parameter should be a named node",
                         ))
                     }
                     None => None,
-                }.as_ref(),
+                }.as_deref(),
                 match self.from_js.to_optional_term(object)? {
                     Some(JsTerm::NamedNode(node)) => Some(node.into()),
                     Some(JsTerm::BlankNode(node)) => Some(node.into()),

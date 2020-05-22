@@ -201,7 +201,7 @@ impl From<BlankNode> for Variable {
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Hash)]
 pub enum NamedNodeOrVariable {
-    NamedNode(NamedNode),
+    NamedNode(NamedNodeBuf),
     Variable(Variable),
 }
 
@@ -214,8 +214,8 @@ impl fmt::Display for NamedNodeOrVariable {
     }
 }
 
-impl From<NamedNode> for NamedNodeOrVariable {
-    fn from(node: NamedNode) -> Self {
+impl From<NamedNodeBuf> for NamedNodeOrVariable {
+    fn from(node: NamedNodeBuf) -> Self {
         NamedNodeOrVariable::NamedNode(node)
     }
 }
@@ -241,8 +241,8 @@ impl fmt::Display for TermOrVariable {
     }
 }
 
-impl From<NamedNode> for TermOrVariable {
-    fn from(node: NamedNode) -> Self {
+impl From<NamedNodeBuf> for TermOrVariable {
+    fn from(node: NamedNodeBuf) -> Self {
         TermOrVariable::Term(node.into())
     }
 }

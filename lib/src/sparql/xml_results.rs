@@ -348,7 +348,7 @@ impl<R: BufRead> ResultsIterator<R> {
                                     if attr.key == b"xml:lang" {
                                         lang = Some(attr.unescape_and_decode_value(&self.reader)?);
                                     } else if attr.key == b"datatype" {
-                                        datatype = Some(NamedNode::parse(
+                                        datatype = Some(NamedNodeBuf::parse(
                                             attr.unescape_and_decode_value(&self.reader)?,
                                         )?);
                                     }
@@ -368,7 +368,7 @@ impl<R: BufRead> ResultsIterator<R> {
                     let data = event.unescaped()?;
                     match state {
                         State::Uri => {
-                            term = Some(NamedNode::parse(self.reader.decode(&data)?)?.into())
+                            term = Some(NamedNodeBuf::parse(self.reader.decode(&data)?)?.into())
                         }
                         State::BNode => {
                             term = Some(
@@ -429,7 +429,7 @@ impl<R: BufRead> ResultsIterator<R> {
 fn build_literal(
     value: impl Into<String>,
     lang: Option<String>,
-    datatype: Option<NamedNode>,
+    datatype: Option<NamedNodeBuf>,
 ) -> Result<Literal> {
     match datatype {
         Some(datatype) => Ok(Literal::new_typed_literal(value, datatype)),

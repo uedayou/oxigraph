@@ -21,7 +21,7 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 /// let store = MemoryStore::new();
 ///
 /// // insertion
-/// let ex = NamedNode::parse("http://example.com")?;
+/// let ex = NamedNodeBuf::parse("http://example.com")?;
 /// let quad = Quad::new(ex.clone(), ex.clone(), ex.clone(), None);
 /// store.insert(&quad)?;
 ///
@@ -83,7 +83,7 @@ impl MemoryStore {
     /// let store = MemoryStore::default();
     ///
     /// // insertions
-    /// let ex = NamedNode::parse("http://example.com")?;
+    /// let ex = NamedNodeBuf::parse("http://example.com")?;
     /// store.insert(&Quad::new(ex.clone(), ex.clone(), ex.clone(), None));
     ///
     /// // SPARQL query
@@ -121,7 +121,7 @@ impl MemoryStore {
     /// let store = MemoryStore::default();
     ///
     /// // insertion
-    /// let ex = NamedNode::parse("http://example.com")?;
+    /// let ex = NamedNodeBuf::parse("http://example.com")?;
     /// let quad = Quad::new(ex.clone(), ex.clone(), ex.clone(), None);
     /// store.insert(&quad);
     ///
@@ -166,7 +166,7 @@ impl MemoryStore {
     ///
     /// let store = MemoryStore::default();
     ///
-    /// let ex = NamedNode::parse("http://example.com")?;
+    /// let ex = NamedNodeBuf::parse("http://example.com")?;
     /// let quad = Quad::new(ex.clone(), ex.clone(), ex.clone(), None);
     ///
     /// // transaction
@@ -206,7 +206,7 @@ impl MemoryStore {
     ///
     /// // quad filter
     /// let results: Result<Vec<Quad>> = store.quads_for_pattern(None, None, None, None).collect();
-    /// let ex = NamedNode::parse("http://example.com")?;
+    /// let ex = NamedNodeBuf::parse("http://example.com")?;
     /// assert_eq!(vec![Quad::new(ex.clone(), ex.clone(), ex.clone(), None)], results?);
     /// # Result::Ok(())
     /// ```
@@ -236,7 +236,7 @@ impl MemoryStore {
     ///
     /// // quad filter
     /// let results: Result<Vec<Quad>> = store.quads_for_pattern(None, None, None, None).collect();
-    /// let ex = NamedNode::parse("http://example.com")?;
+    /// let ex = NamedNodeBuf::parse("http://example.com")?;
     /// assert_eq!(vec![Quad::new(ex.clone(), ex.clone(), ex.clone(), Some(ex.into()))], results?);
     /// # Result::Ok(())
     /// ```
@@ -817,7 +817,7 @@ impl<'a> MemoryTransaction<'a> {
     ///
     /// // quad filter
     /// let results: Result<Vec<Quad>> = store.quads_for_pattern(None, None, None, None).collect();
-    /// let ex = NamedNode::parse("http://example.com")?;
+    /// let ex = NamedNodeBuf::parse("http://example.com")?;
     /// assert_eq!(vec![Quad::new(ex.clone(), ex.clone(), ex.clone(), None)], results?);
     /// # Result::Ok(())
     /// ```
@@ -846,7 +846,7 @@ impl<'a> MemoryTransaction<'a> {
     ///
     /// // quad filter
     /// let results: Result<Vec<Quad>> = store.quads_for_pattern(None, None, None, None).collect();
-    /// let ex = NamedNode::parse("http://example.com")?;
+    /// let ex = NamedNodeBuf::parse("http://example.com")?;
     /// assert_eq!(vec![Quad::new(ex.clone(), ex.clone(), ex.clone(), Some(ex.into()))], results?);
     /// # Result::Ok(())
     /// ```

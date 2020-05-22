@@ -602,6 +602,14 @@ impl<E: Encoder> PlanBuilder<E> {
                             graph_name,
                             "decimal",
                         )?
+                    } else if name == "http://www.w3.org/2001/XMLSchema#duration" {
+                        self.build_cast(
+                            parameters,
+                            PlanExpression::DurationCast,
+                            variables,
+                            graph_name,
+                            "duration",
+                        )?
                     } else if name == "http://www.w3.org/2001/XMLSchema#integer" {
                         self.build_cast(
                             parameters,
@@ -618,14 +626,6 @@ impl<E: Encoder> PlanBuilder<E> {
                             graph_name,
                             "date",
                         )?
-                    } else if name == "http://www.w3.org/2001/XMLSchema#time" {
-                        self.build_cast(
-                            parameters,
-                            PlanExpression::TimeCast,
-                            variables,
-                            graph_name,
-                            "time",
-                        )?
                     } else if name == "http://www.w3.org/2001/XMLSchema#dateTime" {
                         self.build_cast(
                             parameters,
@@ -634,14 +634,6 @@ impl<E: Encoder> PlanBuilder<E> {
                             graph_name,
                             "dateTime",
                         )?
-                    } else if name == "http://www.w3.org/2001/XMLSchema#duration" {
-                        self.build_cast(
-                            parameters,
-                            PlanExpression::DurationCast,
-                            variables,
-                            graph_name,
-                            "duration",
-                        )?
                     } else if name == "http://www.w3.org/2001/XMLSchema#string" {
                         self.build_cast(
                             parameters,
@@ -649,6 +641,14 @@ impl<E: Encoder> PlanBuilder<E> {
                             variables,
                             graph_name,
                             "string",
+                        )?
+                    } else if name == "http://www.w3.org/2001/XMLSchema#time" {
+                        self.build_cast(
+                            parameters,
+                            PlanExpression::TimeCast,
+                            variables,
+                            graph_name,
+                            "time",
                         )?
                     } else {
                         return Err(Error::msg(format!(

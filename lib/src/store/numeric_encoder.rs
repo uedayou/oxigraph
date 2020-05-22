@@ -1,5 +1,3 @@
-use crate::model::vocab::rdf;
-use crate::model::vocab::xsd;
 use crate::model::xsd::*;
 use crate::model::*;
 use crate::Error;
@@ -493,7 +491,7 @@ impl<'a> From<rio::Literal<'a>> for EncodedTerm {
 impl From<&NamedOrBlankNode> for EncodedTerm {
     fn from(node: &NamedOrBlankNode) -> Self {
         match node {
-            NamedOrBlankNode::NamedNode(node) => node.into(),
+            NamedOrBlankNode::NamedNode(node) => node.as_ref().into(),
             NamedOrBlankNode::BlankNode(node) => node.into(),
         }
     }
@@ -502,7 +500,7 @@ impl From<&NamedOrBlankNode> for EncodedTerm {
 impl From<&Term> for EncodedTerm {
     fn from(node: &Term) -> Self {
         match node {
-            Term::NamedNode(node) => node.into(),
+            Term::NamedNode(node) => node.as_ref().into(),
             Term::BlankNode(node) => node.into(),
             Term::Literal(literal) => literal.into(),
         }
@@ -839,17 +837,23 @@ pub trait StrContainer {
     /// Should be called when the bytes store is created
     fn set_first_strings(&mut self) -> Result<()> {
         self.insert_str(EMPTY_STRING_ID, "")?;
-        self.insert_str(RDF_LANG_STRING_ID, rdf::LANG_STRING.as_str())?;
-        self.insert_str(XSD_STRING_ID, xsd::STRING.as_str())?;
-        self.insert_str(XSD_BOOLEAN_ID, xsd::BOOLEAN.as_str())?;
-        self.insert_str(XSD_FLOAT_ID, xsd::FLOAT.as_str())?;
-        self.insert_str(XSD_DOUBLE_ID, xsd::DOUBLE.as_str())?;
-        self.insert_str(XSD_INTEGER_ID, xsd::INTEGER.as_str())?;
-        self.insert_str(XSD_DECIMAL_ID, xsd::DECIMAL.as_str())?;
-        self.insert_str(XSD_DATE_TIME_ID, xsd::DATE_TIME.as_str())?;
-        self.insert_str(XSD_DATE_ID, xsd::DATE.as_str())?;
-        self.insert_str(XSD_TIME_ID, xsd::TIME.as_str())?;
-        self.insert_str(XSD_DURATION_ID, xsd::DURATION.as_str())?;
+        self.insert_str(
+            RDF_LANG_STRING_ID,
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+        )?;
+        self.insert_str(XSD_STRING_ID, "http://www.w3.org/2001/XMLSchema#string")?;
+        self.insert_str(XSD_BOOLEAN_ID, "http://www.w3.org/2001/XMLSchema#boolean")?;
+        self.insert_str(XSD_FLOAT_ID, "http://www.w3.org/2001/XMLSchema#float")?;
+        self.insert_str(XSD_DOUBLE_ID, "http://www.w3.org/2001/XMLSchema#double")?;
+        self.insert_str(XSD_INTEGER_ID, "http://www.w3.org/2001/XMLSchema#integer")?;
+        self.insert_str(XSD_DECIMAL_ID, "http://www.w3.org/2001/XMLSchema#decimal")?;
+        self.insert_str(
+            XSD_DATE_TIME_ID,
+            "http://www.w3.org/2001/XMLSchema#dateTime",
+        )?;
+        self.insert_str(XSD_DATE_ID, "http://www.w3.org/2001/XMLSchema#date")?;
+        self.insert_str(XSD_TIME_ID, "http://www.w3.org/2001/XMLSchema#time")?;
+        self.insert_str(XSD_DURATION_ID, "http://www.w3.org/2001/XMLSchema#duration")?;
         Ok(())
     }
 }
@@ -1148,7 +1152,7 @@ pub trait Decoder {
         }
     }
 
-    fn decode_named_node(&self, encoded: EncodedTerm) -> Result<NamedNode> {
+    fn decode_named_node(&self, encoded: EncodedTerm) -> Result<NamedNodeBuf> {
         match self.decode_term(encoded)? {
             Term::NamedNode(named_node) => Ok(named_node),
             Term::BlankNode(_) => Err(Error::msg(
@@ -1188,7 +1192,7 @@ impl<S: StrLookup> Decoder for S {
                 Err(Error::msg("The default graph tag is not a valid term"))
             }
             EncodedTerm::NamedNode { iri_id } => {
-                Ok(NamedNode::new_unchecked(get_required_str(self, iri_id)?).into())
+                Ok(NamedNodeBuf::new_unchecked(get_required_str(self, iri_id)?).into())
             }
             EncodedTerm::BlankNode { id } => Ok(BlankNode::new_from_unique_id(id).into()),
             EncodedTerm::StringLiteral { value_id } => {
@@ -1207,7 +1211,7 @@ impl<S: StrLookup> Decoder for S {
                 datatype_id,
             } => Ok(Literal::new_typed_literal(
                 get_required_str(self, value_id)?,
-                NamedNode::new_unchecked(get_required_str(self, datatype_id)?),
+                NamedNodeBuf::new_unchecked(get_required_str(self, datatype_id)?),
             )
             .into()),
             EncodedTerm::BooleanLiteral(value) => Ok(Literal::from(value).into()),
@@ -1234,11 +1238,13 @@ fn get_required_str(lookup: &impl StrLookup, id: StrHash) -> Result<String> {
 
 #[test]
 fn test_encoding() {
+    use crate::model::vocab::xsd;
+
     let mut store = MemoryStrStore::default();
     let terms: Vec<Term> = vec![
-        NamedNode::new_unchecked("http://foo.com").into(),
-        NamedNode::new_unchecked("http://bar.com").into(),
-        NamedNode::new_unchecked("http://foo.com").into(),
+        NamedNodeBuf::new_unchecked("http://foo.com").into(),
+        NamedNodeBuf::new_unchecked("http://bar.com").into(),
+        NamedNodeBuf::new_unchecked("http://foo.com").into(),
         BlankNode::default().into(),
         Literal::new_simple_literal("foo").into(),
         Literal::from(true).into(),
@@ -1256,7 +1262,7 @@ fn test_encoding() {
         Literal::new_typed_literal("2020-01-01", xsd::DATE.clone()).into(),
         Literal::new_typed_literal("01:01:01Z", xsd::TIME.clone()).into(),
         Literal::new_typed_literal("PT1S", xsd::DURATION.clone()).into(),
-        Literal::new_typed_literal("-foo", NamedNode::new_unchecked("http://foo.com")).into(),
+        Literal::new_typed_literal("-foo", NamedNodeBuf::new_unchecked("http://foo.com")).into(),
     ];
     for term in terms {
         let encoded = store.encode_term(&term).unwrap();

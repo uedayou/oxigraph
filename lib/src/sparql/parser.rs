@@ -1,5 +1,3 @@
-use crate::model::vocab::rdf;
-use crate::model::vocab::xsd;
 use crate::model::*;
 use crate::sparql::algebra::*;
 use crate::sparql::model::*;
@@ -679,7 +677,7 @@ parser! {
         }
 
         //[16]
-        rule SourceSelector() -> NamedNode = iri()
+        rule SourceSelector() -> NamedNodeBuf = iri()
 
         //[17]
         rule WhereClause() -> GraphPattern = i("WHERE")? _ p:GroupGraphPattern() {
@@ -971,7 +969,9 @@ parser! {
         }
 
         //[78]
-        rule Verb() -> NamedNodeOrVariable = VarOrIri() / "a" { rdf::TYPE.clone().into() }
+        rule Verb() -> NamedNodeOrVariable = VarOrIri() / "a" {
+            NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").into()
+            }
 
         //[79]
         rule ObjectList() -> FocusedTriplePattern<Vec<TermOrVariable>> = o:ObjectList_item() **<1,> ("," _) {
@@ -1091,7 +1091,7 @@ parser! {
         //[94]
         rule PathPrimary() -> PropertyPath =
             v:iri() { v.into() } /
-            "a" { rdf::TYPE.clone().into() } /
+            "a" {  NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").into() } /
             "!" _ p:PathNegatedPropertySet() { p } /
             "(" _ p:Path() _ ")" { p }
 
@@ -1123,14 +1123,14 @@ parser! {
                     Either::Right(b) => PropertyPath::InversePath(Box::new(PropertyPath::NegatedPropertySet(vec![b]))),
                 }
             }
-        rule PathNegatedPropertySet_item() -> Either<NamedNode,NamedNode> = p:PathOneInPropertySet() _ { p }
+        rule PathNegatedPropertySet_item() -> Either<NamedNodeBuf,NamedNodeBuf> = p:PathOneInPropertySet() _ { p }
 
         //[96]
-        rule PathOneInPropertySet() -> Either<NamedNode,NamedNode> =
+        rule PathOneInPropertySet() -> Either<NamedNodeBuf,NamedNodeBuf> =
             "^" _ v:iri() { Either::Right(v) } /
-            "^" _ "a" { Either::Right(rdf::TYPE.clone()) } /
+            "^" _ "a" { Either::Right(NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) } /
             v:iri() { Either::Left(v) } /
-            "a" { Either::Left(rdf::TYPE.clone()) }
+            "a" { Either::Left(NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) }
 
         //[98]
         rule TriplesNode() -> FocusedTriplePattern<TermOrVariable> = Collection() / BlankNodePropertyList()
@@ -1171,11 +1171,11 @@ parser! {
         //[102]
         rule Collection() -> FocusedTriplePattern<TermOrVariable> = "(" _ o:Collection_item()+ ")" {
             let mut patterns: Vec<TriplePattern> = Vec::default();
-            let mut current_list_node = TermOrVariable::from(rdf::NIL.clone());
+            let mut current_list_node = TermOrVariable::from(NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"));
             for objWithPatterns in o.into_iter().rev() {
                 let new_blank_node = TermOrVariable::from(BlankNode::default());
-                patterns.push(TriplePattern::new(new_blank_node.clone(), rdf::FIRST.clone(), objWithPatterns.focus.clone()));
-                patterns.push(TriplePattern::new(new_blank_node.clone(), rdf::REST.clone(), current_list_node));
+                patterns.push(TriplePattern::new(new_blank_node.clone(), NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#first"), objWithPatterns.focus.clone()));
+                patterns.push(TriplePattern::new(new_blank_node.clone(), NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"), current_list_node));
                 current_list_node = new_blank_node;
                 patterns.extend_from_slice(&objWithPatterns.patterns);
             }
@@ -1189,11 +1189,11 @@ parser! {
         //[103]
         rule CollectionPath() -> FocusedTripleOrPathPattern<TermOrVariable> = "(" _ o:CollectionPath_item()+ _ ")" {
             let mut patterns: Vec<TripleOrPathPattern> = Vec::default();
-            let mut current_list_node = TermOrVariable::from(rdf::NIL.clone());
+            let mut current_list_node = TermOrVariable::from(NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"));
             for objWithPatterns in o.into_iter().rev() {
                 let new_blank_node = TermOrVariable::from(BlankNode::default());
-                patterns.push(TriplePattern::new(new_blank_node.clone(), rdf::FIRST.clone(), objWithPatterns.focus.clone()).into());
-                patterns.push(TriplePattern::new(new_blank_node.clone(), rdf::REST.clone(), current_list_node).into());
+                patterns.push(TriplePattern::new(new_blank_node.clone(), NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#first"), objWithPatterns.focus.clone()).into());
+                patterns.push(TriplePattern::new(new_blank_node.clone(), NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"), current_list_node).into());
                 current_list_node = new_blank_node;
                 patterns.extend_from_slice(&objWithPatterns.patterns);
             }
@@ -1234,7 +1234,7 @@ parser! {
             l:NumericLiteral() { l.into() } /
             l:BooleanLiteral() { l.into() } /
             b:BlankNode() { b.into() } /
-            NIL() { rdf::NIL.clone().into() }
+            NIL() { NamedNodeBuf::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil").into() }
 
         //[110]
         rule Expression() -> Expression = e:ConditionalOrExpression() {e}
@@ -1442,8 +1442,8 @@ parser! {
                 Ok(value) => Ok(value.into()),
                 Err(_) => Err("Invalid xsd:double()")
             } } /
-            d:$(DECIMAL()) { Literal::new_typed_literal(d, xsd::DECIMAL.clone()) } /
-            i:$(INTEGER()) { Literal::new_typed_literal(i, xsd::INTEGER.clone()) }
+            d:$(DECIMAL()) { Literal::new_typed_literal(d, NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#decimal")) } /
+            i:$(INTEGER()) { Literal::new_typed_literal(i, NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer")) }
 
         //[132]
         rule NumericLiteralPositive() -> Literal =
@@ -1451,8 +1451,8 @@ parser! {
                 Ok(value) => Ok(value.into()),
                 Err(_) => Err("Invalid xsd:double()")
             } } /
-            d:$(DECIMAL_POSITIVE()) { Literal::new_typed_literal(d, xsd::DECIMAL.clone()) } /
-            i:$(INTEGER_POSITIVE()) { Literal::new_typed_literal(i, xsd::INTEGER.clone()) }
+            d:$(DECIMAL_POSITIVE()) { Literal::new_typed_literal(d, NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#decimal")) } /
+            i:$(INTEGER_POSITIVE()) { Literal::new_typed_literal(i, NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer")) }
 
 
         //[133]
@@ -1461,8 +1461,8 @@ parser! {
                 Ok(value) => Ok(value.into()),
                 Err(_) => Err("Invalid xsd:double()")
             } } /
-            d:$(DECIMAL_NEGATIVE()) { Literal::new_typed_literal(d, xsd::DECIMAL.clone()) } /
-            i:$(INTEGER_NEGATIVE()) { Literal::new_typed_literal(i, xsd::INTEGER.clone()) }
+            d:$(DECIMAL_NEGATIVE()) { Literal::new_typed_literal(d, NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#decimal")) } /
+            i:$(INTEGER_NEGATIVE()) { Literal::new_typed_literal(i, NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer")) }
 
         //[134]
         rule BooleanLiteral() -> Literal =
@@ -1473,8 +1473,8 @@ parser! {
         rule String() -> String = STRING_LITERAL_LONG1() / STRING_LITERAL_LONG2() / STRING_LITERAL1() / STRING_LITERAL2()
 
         //[136]
-        rule iri() -> NamedNode = i:(IRIREF() / PrefixedName()) {
-            NamedNode::new_from_iri(i)
+        rule iri() -> NamedNodeBuf = i:(IRIREF() / PrefixedName()) {
+            i.into()
         }
 
         //[137]

@@ -1,6 +1,4 @@
 use crate::model::named_node::NamedNode;
-use crate::model::vocab::rdf;
-use crate::model::vocab::xsd;
 use crate::model::xsd::*;
 use oxilangtag::{LanguageTag, LanguageTagParseError};
 use rio_api::model as rio;
@@ -38,8 +36,14 @@ pub struct Literal(LiteralContent);
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone, Hash)]
 enum LiteralContent {
     String(String),
-    LanguageTaggedString { value: String, language: String },
-    TypedLiteral { value: String, datatype: NamedNode },
+    LanguageTaggedString {
+        value: String,
+        language: String,
+    },
+    TypedLiteral {
+        value: String,
+        datatype: Cow<'static, NamedNode>,
+    },
 }
 
 impl Literal {
@@ -49,14 +53,21 @@ impl Literal {
     }
 
     /// Builds a RDF [literal](https://www.w3.org/TR/rdf11-concepts/#dfn-literal) with a [datatype](https://www.w3.org/TR/rdf11-concepts/#dfn-datatype-iri)
-    pub fn new_typed_literal(value: impl Into<String>, datatype: impl Into<NamedNode>) -> Self {
+    pub fn new_typed_literal(
+        value: impl Into<String>,
+        datatype: impl Into<Cow<'static, NamedNode>>,
+    ) -> Self {
         let value = value.into();
         let datatype = datatype.into();
-        Literal(if datatype == *xsd::STRING {
-            LiteralContent::String(value)
-        } else {
-            LiteralContent::TypedLiteral { value, datatype }
-        })
+        Literal(
+            if datatype.as_ref()
+                == NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#string")
+            {
+                LiteralContent::String(value)
+            } else {
+                LiteralContent::TypedLiteral { value, datatype }
+            },
+        )
     }
 
     /// Builds a RDF [language-tagged string](https://www.w3.org/TR/rdf11-concepts/#dfn-language-tagged-string)
@@ -116,8 +127,12 @@ impl Literal {
     /// The datatype of [simple literals](https://www.w3.org/TR/rdf11-concepts/#dfn-simple-literal) is [xsd:string](http://www.w3.org/2001/XMLSchema#string).
     pub fn datatype(&self) -> &NamedNode {
         match &self.0 {
-            LiteralContent::String(_) => &xsd::STRING,
-            LiteralContent::LanguageTaggedString { .. } => &rdf::LANG_STRING,
+            LiteralContent::String(_) => {
+                NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#string")
+            }
+            LiteralContent::LanguageTaggedString { .. } => {
+                NamedNode::new_unchecked("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")
+            }
             LiteralContent::TypedLiteral { datatype, .. } => datatype,
         }
     }
@@ -134,7 +149,7 @@ impl Literal {
     }
 
     /// Extract components from this literal
-    pub fn destruct(self) -> (String, Option<NamedNode>, Option<String>) {
+    pub fn destruct(self) -> (String, Option<Cow<'static, NamedNode>>, Option<String>) {
         match self.0 {
             LiteralContent::String(s) => (s, None, None),
             LiteralContent::LanguageTaggedString { value, language } => {
@@ -173,7 +188,7 @@ impl From<bool> for Literal {
     fn from(value: bool) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::BOOLEAN.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#boolean").into(),
         })
     }
 }
@@ -182,7 +197,7 @@ impl From<i128> for Literal {
     fn from(value: i128) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::INTEGER.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer").into(),
         })
     }
 }
@@ -191,7 +206,7 @@ impl From<i64> for Literal {
     fn from(value: i64) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::INTEGER.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer").into(),
         })
     }
 }
@@ -200,7 +215,7 @@ impl From<i32> for Literal {
     fn from(value: i32) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::INTEGER.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer").into(),
         })
     }
 }
@@ -209,7 +224,7 @@ impl From<i16> for Literal {
     fn from(value: i16) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::INTEGER.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer").into(),
         })
     }
 }
@@ -218,7 +233,7 @@ impl From<u64> for Literal {
     fn from(value: u64) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::INTEGER.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer").into(),
         })
     }
 }
@@ -227,7 +242,7 @@ impl From<u32> for Literal {
     fn from(value: u32) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::INTEGER.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer").into(),
         })
     }
 }
@@ -236,7 +251,7 @@ impl From<u16> for Literal {
     fn from(value: u16) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::INTEGER.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#integer").into(),
         })
     }
 }
@@ -245,7 +260,7 @@ impl From<f32> for Literal {
     fn from(value: f32) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::FLOAT.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#float").into(),
         })
     }
 }
@@ -254,7 +269,7 @@ impl From<f64> for Literal {
     fn from(value: f64) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::DOUBLE.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#double").into(),
         })
     }
 }
@@ -263,7 +278,7 @@ impl From<Decimal> for Literal {
     fn from(value: Decimal) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::DECIMAL.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#decimal").into(),
         })
     }
 }
@@ -272,7 +287,7 @@ impl From<Date> for Literal {
     fn from(value: Date) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::DATE.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#date").into(),
         })
     }
 }
@@ -281,7 +296,7 @@ impl From<Time> for Literal {
     fn from(value: Time) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::TIME.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#time").into(),
         })
     }
 }
@@ -290,7 +305,7 @@ impl From<DateTime> for Literal {
     fn from(value: DateTime) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::DATE_TIME.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#dateTime").into(),
         })
     }
 }
@@ -299,7 +314,7 @@ impl From<Duration> for Literal {
     fn from(value: Duration) -> Self {
         Literal(LiteralContent::TypedLiteral {
             value: value.to_string(),
-            datatype: xsd::DURATION.clone(),
+            datatype: NamedNode::new_unchecked("http://www.w3.org/2001/XMLSchema#duration").into(),
         })
     }
 }

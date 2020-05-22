@@ -15,6 +15,7 @@ pub use crate::model::blank_node::BlankNode;
 pub use crate::model::graph::SimpleGraph;
 pub use crate::model::literal::Literal;
 pub use crate::model::named_node::NamedNode;
+pub use crate::model::named_node::NamedNodeBuf;
 pub use crate::model::triple::NamedOrBlankNode;
 pub use crate::model::triple::Quad;
 pub use crate::model::triple::Term;

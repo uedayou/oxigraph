@@ -1,13 +1,13 @@
 use crate::model::blank_node::BlankNode;
 use crate::model::literal::Literal;
-use crate::model::named_node::NamedNode;
+use crate::model::named_node::{NamedNode, NamedNodeBuf};
 use rio_api::model as rio;
 use std::fmt;
 
 /// The union of [IRIs](https://www.w3.org/TR/rdf11-concepts/#dfn-iri) and [blank nodes](https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node).
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Hash)]
 pub enum NamedOrBlankNode {
-    NamedNode(NamedNode),
+    NamedNode(NamedNodeBuf),
     BlankNode(BlankNode),
 }
 
@@ -36,8 +36,8 @@ impl fmt::Display for NamedOrBlankNode {
     }
 }
 
-impl From<NamedNode> for NamedOrBlankNode {
-    fn from(node: NamedNode) -> Self {
+impl From<NamedNodeBuf> for NamedOrBlankNode {
+    fn from(node: NamedNodeBuf) -> Self {
         NamedOrBlankNode::NamedNode(node)
     }
 }
@@ -51,7 +51,7 @@ impl From<BlankNode> for NamedOrBlankNode {
 impl<'a> From<&'a NamedOrBlankNode> for rio::NamedOrBlankNode<'a> {
     fn from(node: &'a NamedOrBlankNode) -> Self {
         match node {
-            NamedOrBlankNode::NamedNode(node) => rio::NamedNode::from(node).into(),
+            NamedOrBlankNode::NamedNode(node) => rio::NamedNode::from(node.as_ref()).into(),
             NamedOrBlankNode::BlankNode(node) => rio::BlankNode::from(node).into(),
         }
     }
@@ -61,7 +61,7 @@ impl<'a> From<&'a NamedOrBlankNode> for rio::NamedOrBlankNode<'a> {
 /// It is the union of [IRIs](https://www.w3.org/TR/rdf11-concepts/#dfn-iri), [blank nodes](https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node) and [literals](https://www.w3.org/TR/rdf11-concepts/#dfn-literal).
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Hash)]
 pub enum Term {
-    NamedNode(NamedNode),
+    NamedNode(NamedNodeBuf),
     BlankNode(BlankNode),
     Literal(Literal),
 }
@@ -102,8 +102,8 @@ impl fmt::Display for Term {
     }
 }
 
-impl From<NamedNode> for Term {
-    fn from(node: NamedNode) -> Self {
+impl From<NamedNodeBuf> for Term {
+    fn from(node: NamedNodeBuf) -> Self {
         Term::NamedNode(node)
     }
 }
@@ -132,7 +132,7 @@ impl From<NamedOrBlankNode> for Term {
 impl<'a> From<&'a Term> for rio::Term<'a> {
     fn from(node: &'a Term) -> Self {
         match node {
-            Term::NamedNode(node) => rio::NamedNode::from(node).into(),
+            Term::NamedNode(node) => rio::NamedNode::from(node.as_ref()).into(),
             Term::BlankNode(node) => rio::BlankNode::from(node).into(),
             Term::Literal(node) => rio::Literal::from(node).into(),
         }
@@ -143,7 +143,7 @@ impl<'a> From<&'a Term> for rio::Term<'a> {
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Hash)]
 pub struct Triple {
     subject: NamedOrBlankNode,
-    predicate: NamedNode,
+    predicate: NamedNodeBuf,
     object: Term,
 }
 
@@ -151,7 +151,7 @@ impl Triple {
     /// Builds a RDF [triple](https://www.w3.org/TR/rdf11-concepts/#dfn-rdf-triple)
     pub fn new(
         subject: impl Into<NamedOrBlankNode>,
-        predicate: impl Into<NamedNode>,
+        predicate: impl Into<NamedNodeBuf>,
         object: impl Into<Term>,
     ) -> Self {
         Self {
@@ -162,7 +162,7 @@ impl Triple {
     }
 
     /// The [subject](https://www.w3.org/TR/rdf11-concepts/#dfn-subject) of this triple
-    pub const fn subject(&self) -> &NamedOrBlankNode {
+    pub fn subject(&self) -> &NamedOrBlankNode {
         &self.subject
     }
 
@@ -172,17 +172,17 @@ impl Triple {
     }
 
     /// The [predicate](https://www.w3.org/TR/rdf11-concepts/#dfn-predicate) of this triple
-    pub const fn predicate(&self) -> &NamedNode {
+    pub fn predicate(&self) -> &NamedNode {
         &self.predicate
     }
 
     /// The [predicate](https://www.w3.org/TR/rdf11-concepts/#dfn-predicate) of this triple
-    pub fn predicate_owned(self) -> NamedNode {
+    pub fn predicate_owned(self) -> NamedNodeBuf {
         self.predicate
     }
 
     /// The [object](https://www.w3.org/TR/rdf11-concepts/#dfn-object) of this triple
-    pub const fn object(&self) -> &Term {
+    pub fn object(&self) -> &Term {
         &self.object
     }
 
@@ -222,7 +222,7 @@ impl<'a> From<&'a Triple> for rio::Triple<'a> {
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Hash)]
 pub struct Quad {
     subject: NamedOrBlankNode,
-    predicate: NamedNode,
+    predicate: NamedNodeBuf,
     object: Term,
     graph_name: Option<NamedOrBlankNode>,
 }
@@ -231,7 +231,7 @@ impl Quad {
     /// Builds a RDF [triple](https://www.w3.org/TR/rdf11-concepts/#dfn-rdf-triple) in a [RDF dataset](https://www.w3.org/TR/rdf11-concepts/#dfn-rdf-dataset)
     pub fn new(
         subject: impl Into<NamedOrBlankNode>,
-        predicate: impl Into<NamedNode>,
+        predicate: impl Into<NamedNodeBuf>,
         object: impl Into<Term>,
         graph_name: impl Into<Option<NamedOrBlankNode>>,
     ) -> Self {
@@ -244,7 +244,7 @@ impl Quad {
     }
 
     /// The [subject](https://www.w3.org/TR/rdf11-concepts/#dfn-subject) of this triple
-    pub const fn subject(&self) -> &NamedOrBlankNode {
+    pub fn subject(&self) -> &NamedOrBlankNode {
         &self.subject
     }
 
@@ -254,17 +254,17 @@ impl Quad {
     }
 
     /// The [predicate](https://www.w3.org/TR/rdf11-concepts/#dfn-predicate) of this triple
-    pub const fn predicate(&self) -> &NamedNode {
+    pub fn predicate(&self) -> &NamedNode {
         &self.predicate
     }
 
     /// The [predicate](https://www.w3.org/TR/rdf11-concepts/#dfn-predicate) of this triple
-    pub fn predicate_owned(self) -> NamedNode {
+    pub fn predicate_owned(self) -> NamedNodeBuf {
         self.predicate
     }
 
     /// The [object](https://www.w3.org/TR/rdf11-concepts/#dfn-object) of this triple
-    pub const fn object(&self) -> &Term {
+    pub fn object(&self) -> &Term {
         &self.object
     }
 
@@ -289,7 +289,14 @@ impl Quad {
     }
 
     /// Extract components from this quad
-    pub fn destruct(self) -> (NamedOrBlankNode, NamedNode, Term, Option<NamedOrBlankNode>) {
+    pub fn destruct(
+        self,
+    ) -> (
+        NamedOrBlankNode,
+        NamedNodeBuf,
+        Term,
+        Option<NamedOrBlankNode>,
+    ) {
         (self.subject, self.predicate, self.object, self.graph_name)
     }
 }

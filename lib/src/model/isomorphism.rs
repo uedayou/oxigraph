@@ -199,7 +199,7 @@ fn check_is_contained_focused<'a>(
         } else {
             t_a.subject().clone()
         };
-        let predicate = t_a.predicate().clone();
+        let predicate = t_a.predicate();
         let object: Term = if let Term::BlankNode(o_a) = &t_a.object() {
             if let Some(o_a) = a_to_b_mapping.get(o_a) {
                 (*o_a).clone().into()
@@ -209,7 +209,7 @@ fn check_is_contained_focused<'a>(
         } else {
             t_a.object().clone()
         };
-        if !b.contains(&Triple::new(subject, predicate, object)) {
+        if !b.contains(&Triple::new(subject, predicate.to_owned(), object)) {
             return false;
         }
     }

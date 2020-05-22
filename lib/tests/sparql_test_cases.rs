@@ -104,39 +104,39 @@ fn sparql_w3c_query_evaluation_testsuite() -> Result<()> {
 
     let test_blacklist = vec![
         //Multiple writing of the same xsd:integer. Our system does strong normalization.
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/distinct/manifest#distinct-1").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/distinct/manifest#distinct-9").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#dawg-str-1").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#dawg-str-2").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-equals/manifest#eq-graph-1").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-equals/manifest#eq-graph-2").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-01").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-04").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/distinct/manifest#distinct-1").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/distinct/manifest#distinct-9").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#dawg-str-1").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#dawg-str-2").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-equals/manifest#eq-graph-1").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-equals/manifest#eq-graph-2").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-01").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-04").unwrap(),
         //Multiple writing of the same xsd:double. Our system does strong normalization.
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm-simple").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm-eq").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm-not-eq").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm-simple").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm-eq").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#sameTerm-not-eq").unwrap(),
         //Simple literal vs xsd:string. We apply RDF 1.1
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/distinct/manifest#distinct-2").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-08").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-10").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-11").unwrap(),
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-12").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/distinct/manifest#distinct-2").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-08").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-10").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-11").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#open-eq-12").unwrap(),
         //DATATYPE("foo"@en) returns rdf:langString in RDF 1.1
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#dawg-datatype-2").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/expr-builtin/manifest#dawg-datatype-2").unwrap(),
         // FROM support
-        NamedNode::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/construct/manifest#constructwhere04").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/construct/manifest#constructwhere04").unwrap(),
         //BNODE() scope is currently wrong
-        NamedNode::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/functions/manifest#bnode01").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/functions/manifest#bnode01").unwrap(),
         //Property path with unbound graph name are not supported yet
-        NamedNode::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/property-path/manifest#pp35").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/property-path/manifest#pp35").unwrap(),
         //SERVICE name from a BGP
-        NamedNode::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/service/manifest#service5").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2009/sparql/docs/tests/data-sparql11/service/manifest#service5").unwrap(),
         // We use XSD 1.1 equality on dates
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#date-2").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/open-world/manifest#date-2").unwrap(),
         // We choose to simplify first the nested group patterns in OPTIONAL
-        NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/optional-filter/manifest#dawg-optional-filter-005-not-simplified").unwrap(),
+        NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/data-r2/optional-filter/manifest#dawg-optional-filter-005-not-simplified").unwrap(),
     ];
 
     let tests: Result<Vec<_>> = manifest_10_urls
@@ -156,7 +156,7 @@ fn sparql_w3c_query_evaluation_testsuite() -> Result<()> {
                 load_graph_to_store(
                     &graph_data,
                     &store,
-                    Some(&NamedNode::parse(graph_data)?.into()),
+                    Some(&NamedNodeBuf::parse(graph_data)?.into()),
                 )?;
             }
             match store.prepare_query(&read_file_to_string(&test.query)?, QueryOptions::default().with_base_iri(&test.query).with_service_handler(StaticServiceHandler::new(&test.service_data)?))
@@ -299,33 +299,33 @@ fn read_file_to_string(url: &str) -> Result<String> {
 
 mod rs {
     use lazy_static::lazy_static;
-    use oxigraph::model::NamedNode;
+    use oxigraph::model::NamedNodeBuf;
 
     lazy_static! {
-        pub static ref RESULT_SET: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#ResultSet")
+        pub static ref RESULT_SET: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#ResultSet")
                 .unwrap();
-        pub static ref RESULT_VARIABLE: NamedNode = NamedNode::parse(
+        pub static ref RESULT_VARIABLE: NamedNodeBuf = NamedNodeBuf::parse(
             "http://www.w3.org/2001/sw/DataAccess/tests/result-set#resultVariable"
         )
         .unwrap();
-        pub static ref SOLUTION: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#solution")
+        pub static ref SOLUTION: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#solution")
                 .unwrap();
-        pub static ref BINDING: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#binding")
+        pub static ref BINDING: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#binding")
                 .unwrap();
-        pub static ref VALUE: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#value")
+        pub static ref VALUE: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#value")
                 .unwrap();
-        pub static ref VARIABLE: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#variable")
+        pub static ref VARIABLE: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#variable")
                 .unwrap();
-        pub static ref INDEX: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#index")
+        pub static ref INDEX: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#index")
                 .unwrap();
-        pub static ref BOOLEAN: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#boolean")
+        pub static ref BOOLEAN: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#boolean")
                 .unwrap();
     }
 }
@@ -394,7 +394,7 @@ fn to_graph(result: QueryResult<'_>, with_order: bool) -> Result<SimpleGraph> {
 }
 
 pub struct Test {
-    pub id: NamedNode,
+    pub id: NamedNodeBuf,
     pub kind: String,
     pub name: Option<String>,
     pub comment: Option<String>,
@@ -446,45 +446,47 @@ impl TestManifest {
 
 pub mod mf {
     use lazy_static::lazy_static;
-    use oxigraph::model::NamedNode;
+    use oxigraph::model::NamedNodeBuf;
 
     lazy_static! {
-        pub static ref INCLUDE: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#include")
+        pub static ref INCLUDE: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#include")
                 .unwrap();
-        pub static ref ENTRIES: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#entries")
+        pub static ref ENTRIES: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#entries")
                 .unwrap();
-        pub static ref NAME: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name")
+        pub static ref NAME: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name")
                 .unwrap();
-        pub static ref ACTION: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action")
+        pub static ref ACTION: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action")
                 .unwrap();
-        pub static ref RESULT: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#result")
+        pub static ref RESULT: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#result")
                 .unwrap();
     }
 }
 
 pub mod qt {
     use lazy_static::lazy_static;
-    use oxigraph::model::NamedNode;
+    use oxigraph::model::NamedNodeBuf;
 
     lazy_static! {
-        pub static ref QUERY: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#query")
+        pub static ref QUERY: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#query")
                 .unwrap();
-        pub static ref DATA: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#data").unwrap();
-        pub static ref GRAPH_DATA: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#graphData")
+        pub static ref DATA: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#data")
                 .unwrap();
-        pub static ref SERVICE_DATA: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#serviceData")
+        pub static ref GRAPH_DATA: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#graphData")
                 .unwrap();
-        pub static ref ENDPOINT: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#endpoint")
+        pub static ref SERVICE_DATA: NamedNodeBuf = NamedNodeBuf::parse(
+            "http://www.w3.org/2001/sw/DataAccess/tests/test-query#serviceData"
+        )
+        .unwrap();
+        pub static ref ENDPOINT: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#endpoint")
                 .unwrap();
     }
 }
@@ -601,7 +603,7 @@ impl Iterator for TestManifest {
                 match self.manifests_to_do.pop() {
                     Some(url) => {
                         let manifest =
-                            NamedOrBlankNode::from(NamedNode::parse(url.clone()).unwrap());
+                            NamedOrBlankNode::from(NamedNodeBuf::parse(url.clone()).unwrap());
                         match load_graph(&url) {
                             Ok(g) => self.graph.extend(g.into_iter()),
                             Err(e) => return Some(Err(e)),
@@ -694,7 +696,7 @@ impl<'a> Iterator for RdfListIterator<'a> {
 
 #[derive(Clone)]
 struct StaticServiceHandler {
-    services: Arc<HashMap<NamedNode, MemoryStore>>,
+    services: Arc<HashMap<NamedNodeBuf, MemoryStore>>,
 }
 
 impl StaticServiceHandler {
@@ -704,7 +706,7 @@ impl StaticServiceHandler {
                 services
                     .iter()
                     .map(|(name, data)| {
-                        let name = NamedNode::parse(name)?;
+                        let name = NamedNodeBuf::parse(name)?;
                         let store = MemoryStore::default();
                         load_graph_to_store(&data, &store, None)?;
                         Ok((name, store))

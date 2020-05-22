@@ -27,7 +27,7 @@ use std::sync::Arc;
 /// let store = RocksDbStore::open("example.db")?;
 ///
 /// // insertion
-/// let ex = NamedNode::parse("http://example.com")?;
+/// let ex = NamedNodeBuf::parse("http://example.com")?;
 /// let quad = Quad::new(ex.clone(), ex.clone(), ex.clone(), None);
 /// store.insert(&quad)?;
 ///
@@ -767,7 +767,7 @@ fn store() -> Result<()> {
     use std::fs::remove_dir_all;
 
     let main_s = NamedOrBlankNode::from(BlankNode::default());
-    let main_p = NamedNode::parse("http://example.com")?;
+    let main_p = NamedNodeBuf::parse("http://example.com")?;
     let main_o = Term::from(Literal::from(1));
 
     let main_quad = Quad::new(main_s.clone(), main_p.clone(), main_o.clone(), None);

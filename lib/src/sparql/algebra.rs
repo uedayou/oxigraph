@@ -75,14 +75,14 @@ impl fmt::Display for TriplePattern {
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Hash)]
 pub enum PropertyPath {
-    PredicatePath(NamedNode),
+    PredicatePath(NamedNodeBuf),
     InversePath(Box<PropertyPath>),
     SequencePath(Box<PropertyPath>, Box<PropertyPath>),
     AlternativePath(Box<PropertyPath>, Box<PropertyPath>),
     ZeroOrMorePath(Box<PropertyPath>),
     OneOrMorePath(Box<PropertyPath>),
     ZeroOrOnePath(Box<PropertyPath>),
-    NegatedPropertySet(Vec<NamedNode>),
+    NegatedPropertySet(Vec<NamedNodeBuf>),
 }
 
 impl fmt::Display for PropertyPath {
@@ -141,8 +141,8 @@ impl<'a> fmt::Display for SparqlPropertyPath<'a> {
     }
 }
 
-impl From<NamedNode> for PropertyPath {
-    fn from(p: NamedNode) -> Self {
+impl From<NamedNodeBuf> for PropertyPath {
+    fn from(p: NamedNodeBuf) -> Self {
         PropertyPath::PredicatePath(p)
     }
 }
@@ -322,8 +322,8 @@ impl fmt::Display for Expression {
     }
 }
 
-impl From<NamedNode> for Expression {
-    fn from(p: NamedNode) -> Self {
+impl From<NamedNodeBuf> for Expression {
+    fn from(p: NamedNodeBuf) -> Self {
         Expression::Constant(p.into())
     }
 }
@@ -490,7 +490,7 @@ pub enum Function {
     IsLiteral,
     IsNumeric,
     Regex,
-    Custom(NamedNode),
+    Custom(NamedNodeBuf),
 }
 
 impl fmt::Display for Function {
@@ -1171,19 +1171,19 @@ impl<'a> fmt::Display for SparqlOrderComparator<'a> {
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Hash, Default)]
 pub struct DatasetSpec {
-    pub default: Vec<NamedNode>,
-    pub named: Vec<NamedNode>,
+    pub default: Vec<NamedNodeBuf>,
+    pub named: Vec<NamedNodeBuf>,
 }
 
 impl DatasetSpec {
-    pub fn new_with_default(graph: NamedNode) -> Self {
+    pub fn new_with_default(graph: NamedNodeBuf) -> Self {
         Self {
             default: vec![graph],
             named: Vec::default(),
         }
     }
 
-    pub fn new_with_named(graph: NamedNode) -> Self {
+    pub fn new_with_named(graph: NamedNodeBuf) -> Self {
         Self {
             default: Vec::default(),
             named: vec![graph],

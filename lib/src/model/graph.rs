@@ -14,7 +14,7 @@ use std::iter::FromIterator;
 /// use oxigraph::model::SimpleGraph;
 ///
 /// let mut graph = SimpleGraph::default();
-/// let ex = NamedNode::parse("http://example.com").unwrap();
+/// let ex = NamedNodeBuf::parse("http://example.com").unwrap();
 /// let triple = Triple::new(ex.clone(), ex.clone(), ex.clone());
 /// graph.insert(triple.clone());
 /// let results: Vec<Triple> = graph.triples_for_subject(&ex.into()).cloned().collect();

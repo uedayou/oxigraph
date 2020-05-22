@@ -109,64 +109,64 @@ fn load_graph_to_store(
 
 mod mf {
     use lazy_static::lazy_static;
-    use oxigraph::model::NamedNode;
+    use oxigraph::model::NamedNodeBuf;
 
     lazy_static! {
-        pub static ref INCLUDE: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#include")
+        pub static ref INCLUDE: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#include")
                 .unwrap();
-        pub static ref ENTRIES: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#entries")
+        pub static ref ENTRIES: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#entries")
                 .unwrap();
-        pub static ref ACTION: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action")
+        pub static ref ACTION: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action")
                 .unwrap();
-        pub static ref RESULT: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#result")
+        pub static ref RESULT: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#result")
                 .unwrap();
     }
 }
 
 mod qt {
     use lazy_static::lazy_static;
-    use oxigraph::model::NamedNode;
+    use oxigraph::model::NamedNodeBuf;
 
     lazy_static! {
-        pub static ref QUERY: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#query")
+        pub static ref QUERY: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/test-query#query")
                 .unwrap();
     }
 }
 
 mod rs {
     use lazy_static::lazy_static;
-    use oxigraph::model::NamedNode;
+    use oxigraph::model::NamedNodeBuf;
 
     lazy_static! {
-        pub static ref RESULT_SET: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#ResultSet")
+        pub static ref RESULT_SET: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#ResultSet")
                 .unwrap();
-        pub static ref RESULT_VARIABLE: NamedNode = NamedNode::parse(
+        pub static ref RESULT_VARIABLE: NamedNodeBuf = NamedNodeBuf::parse(
             "http://www.w3.org/2001/sw/DataAccess/tests/result-set#resultVariable"
         )
         .unwrap();
-        pub static ref SOLUTION: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#solution")
+        pub static ref SOLUTION: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#solution")
                 .unwrap();
-        pub static ref BINDING: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#binding")
+        pub static ref BINDING: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#binding")
                 .unwrap();
-        pub static ref VALUE: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#value")
+        pub static ref VALUE: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#value")
                 .unwrap();
-        pub static ref VARIABLE: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#variable")
+        pub static ref VARIABLE: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#variable")
                 .unwrap();
-        pub static ref INDEX: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#index")
+        pub static ref INDEX: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#index")
                 .unwrap();
-        pub static ref BOOLEAN: NamedNode =
-            NamedNode::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#boolean")
+        pub static ref BOOLEAN: NamedNodeBuf =
+            NamedNodeBuf::parse("http://www.w3.org/2001/sw/DataAccess/tests/result-set#boolean")
                 .unwrap();
     }
 }
@@ -237,7 +237,7 @@ impl Iterator for TestManifest {
                 match self.manifests_to_do.pop() {
                     Some(url) => {
                         let manifest =
-                            NamedOrBlankNode::from(NamedNode::parse(url.clone()).unwrap());
+                            NamedOrBlankNode::from(NamedNodeBuf::parse(url.clone()).unwrap());
                         match load_graph(&url) {
                             Ok(g) => self.graph.extend(g.into_iter()),
                             Err(e) => return Some(Err(e)),

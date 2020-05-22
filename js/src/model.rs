@@ -1,7 +1,7 @@
 use crate::format_err;
 use crate::utils::to_err;
 use js_sys::{Reflect, UriError};
-use oxigraph::model::*;
+use oxigraph::model::{BlankNode, Literal, NamedNodeBuf, NamedOrBlankNode, Quad, Term};
 use std::convert::TryFrom;
 use wasm_bindgen::prelude::*;
 
@@ -15,7 +15,7 @@ pub struct JsDataFactory {
 impl JsDataFactory {
     #[wasm_bindgen(js_name = namedNode)]
     pub fn named_node(&self, value: String) -> Result<JsNamedNode, JsValue> {
-        NamedNode::parse(value)
+        NamedNodeBuf::parse(value)
             .map(|v| v.into())
             .map_err(|v| UriError::new(&v.to_string()).into())
     }
@@ -48,7 +48,11 @@ impl JsDataFactory {
             .map_err(to_err)?
             .into())
         } else if let JsTerm::NamedNode(datatype) = self.from_js.to_term(language_or_datatype)? {
-            Ok(Literal::new_typed_literal(value.unwrap_or_else(String::new), datatype).into())
+            Ok(Literal::new_typed_literal(
+                value.unwrap_or_else(String::new),
+                NamedNodeBuf::from(datatype),
+            )
+            .into())
         } else {
             Err(format_err!("The literal datatype should be a NamedNode"))
         }
@@ -108,7 +112,7 @@ impl JsDataFactory {
 #[wasm_bindgen(js_name = NamedNode)]
 #[derive(Eq, PartialEq, Debug, Clone, Hash)]
 pub struct JsNamedNode {
-    inner: NamedNode,
+    inner: NamedNodeBuf,
 }
 
 #[wasm_bindgen(js_class = NamedNode)]
@@ -134,13 +138,13 @@ impl JsNamedNode {
     }
 }
 
-impl From<NamedNode> for JsNamedNode {
-    fn from(inner: NamedNode) -> Self {
+impl From<NamedNodeBuf> for JsNamedNode {
+    fn from(inner: NamedNodeBuf) -> Self {
         Self { inner }
     }
 }
 
-impl From<JsNamedNode> for NamedNode {
+impl From<JsNamedNode> for NamedNodeBuf {
     fn from(node: JsNamedNode) -> Self {
         node.inner
     }
@@ -236,7 +240,7 @@ impl JsLiteral {
 
     #[wasm_bindgen(getter)]
     pub fn datatype(&self) -> JsNamedNode {
-        self.inner.datatype().clone().into()
+        self.inner.datatype().to_owned().into()
     }
 
     pub fn equals(&self, other: &JsValue) -> bool {
@@ -314,8 +318,8 @@ impl From<JsTerm> for JsValue {
     }
 }
 
-impl From<NamedNode> for JsTerm {
-    fn from(node: NamedNode) -> Self {
+impl From<NamedNodeBuf> for JsTerm {
+    fn from(node: NamedNodeBuf) -> Self {
         JsTerm::NamedNode(node.into())
     }
 }
@@ -351,7 +355,7 @@ impl From<Term> for JsTerm {
     }
 }
 
-impl TryFrom<JsTerm> for NamedNode {
+impl TryFrom<JsTerm> for NamedNodeBuf {
     type Error = JsValue;
 
     fn try_from(value: JsTerm) -> Result<Self, JsValue> {
@@ -463,10 +467,10 @@ impl TryFrom<JsQuad> for Quad {
     fn try_from(quad: JsQuad) -> Result<Self, JsValue> {
         Ok(Quad::new(
             NamedOrBlankNode::try_from(quad.subject)?,
-            NamedNode::try_from(quad.predicate)?,
+            NamedNodeBuf::try_from(quad.predicate)?,
             Term::try_from(quad.object)?,
             match quad.graph {
-                JsTerm::NamedNode(node) => Some(NamedOrBlankNode::from(NamedNode::from(node))),
+                JsTerm::NamedNode(node) => Some(NamedOrBlankNode::from(NamedNodeBuf::from(node))),
                 JsTerm::BlankNode(node) => Some(NamedOrBlankNode::from(BlankNode::from(node))),
                 JsTerm::Literal(literal) => {
                     return Err(format_err!(
@@ -511,7 +515,7 @@ impl FromJsConverter {
         let term_type = Reflect::get(&value, &self.term_type)?;
         if let Some(term_type) = term_type.as_string() {
             match term_type.as_str() {
-                "NamedNode" => Ok(NamedNode::parse(
+                "NamedNode" => Ok(NamedNodeBuf::parse(
                     Reflect::get(&value, &self.value)?
                         .as_string()
                         .ok_or_else(|| format_err!("NamedNode should have a string value"))?,
@@ -536,7 +540,7 @@ impl FromJsConverter {
                     if let JsTerm::NamedNode(datatype) =
                         self.to_term(&Reflect::get(&value, &self.datatype)?)?
                     {
-                        let datatype = NamedNode::from(datatype);
+                        let datatype = NamedNodeBuf::from(datatype);
                         let literal_value = Reflect::get(&value, &self.value)?
                             .as_string()
                             .ok_or_else(|| format_err!("Literal should have a string value"))?;
