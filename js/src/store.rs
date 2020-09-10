@@ -38,20 +38,17 @@ impl JsMemoryStore {
     }
 
     pub fn add(&self, quad: &JsValue) -> Result<(), JsValue> {
-        self.store
-            .insert(Quad::try_from(self.from_js.to_quad(quad)?)?);
+        self.store.insert(self.from_js.to_quad(quad)?);
         Ok(())
     }
 
     pub fn delete(&self, quad: &JsValue) -> Result<(), JsValue> {
-        self.store.remove(&self.from_js.to_quad(quad)?.try_into()?);
+        self.store.remove(&self.from_js.to_quad(quad)?);
         Ok(())
     }
 
     pub fn has(&self, quad: &JsValue) -> Result<bool, JsValue> {
-        Ok(self
-            .store
-            .contains(&self.from_js.to_quad(quad)?.try_into()?))
+        Ok(self.store.contains(&self.from_js.to_quad(quad)?))
     }
 
     #[wasm_bindgen(getter=size)]
