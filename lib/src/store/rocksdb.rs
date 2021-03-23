@@ -127,6 +127,45 @@ impl RocksDbStore {
         }
     }
 
+    pub fn open_readonly(path: impl AsRef<Path>) -> Result<Self, io::Error> {
+        let mut options = Options::default();
+        options.create_if_missing(true);
+        options.create_missing_column_families(true);
+        options.set_compaction_style(DBCompactionStyle::Universal);
+
+        let this = Self {
+            db: Arc::new(DB::open_cf_for_read_only(&options, path, &COLUMN_FAMILIES, false).map_err(map_err)?),
+        };
+
+        let mut version = this.ensure_version()?;
+        if version == 0 {
+            // We migrate to v1
+            let mut transaction = this.auto_batch_writer();
+            for quad in this.encoded_quads_for_pattern(None, None, None, None) {
+                let quad = quad?;
+                if !quad.graph_name.is_default_graph() {
+                    transaction.insert_encoded_named_graph(quad.graph_name)?;
+                }
+            }
+            transaction.apply()?;
+            version = 1;
+            this.set_version(version)?;
+            this.flush()?;
+        }
+
+        match version {
+            _ if version < LATEST_STORAGE_VERSION => Err(invalid_data_error(format!(
+                "The RocksDB database is using the outdated encoding version {}. Automated migration is not supported, please dump the store dataset using a compatible Oxigraph version and load it again using the current version",
+                version
+            ))),
+            LATEST_STORAGE_VERSION => Ok(this),
+            _ => Err(invalid_data_error(format!(
+                "The RocksDB database is using the too recent version {}. Upgrade to the latest Oxigraph version to load this database",
+                version
+            )))
+        }
+    }
+
     fn ensure_version(&self) -> Result<u64, io::Error> {
         Ok(
             if let Some(version) = self.db.get("oxversion").map_err(map_err)? {
